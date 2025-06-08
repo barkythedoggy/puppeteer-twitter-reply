@@ -1,4 +1,5 @@
-const puppeteer = require('puppeteer');
+const puppeteer = require('puppeteer-core');
+const chromium = require('chromium');
 const express = require('express');
 const bodyParser = require('body-parser');
 const fs = require('fs');
@@ -8,18 +9,17 @@ app.use(bodyParser.json());
 
 app.post('/', async (req, res) => {
   const { target_tweet_url, comment } = req.body;
-
   if (!target_tweet_url || !comment) {
     return res.status(400).send('Missing tweet URL or reply message');
   }
 
   const cookies = JSON.parse(fs.readFileSync('cookies.json'));
 
-const browser = await puppeteer.launch({
-  headless: true,
-  args: ['--no-sandbox', '--disable-setuid-sandbox'],
-  executablePath: require('puppeteer').executablePath()
-});
+  const browser = await puppeteer.launch({
+    headless: true,
+    executablePath: chromium.path,
+    args: ['--no-sandbox', '--disable-setuid-sandbox']
+  });
 
   const page = await browser.newPage();
   await page.setCookie(...cookies);
@@ -47,3 +47,4 @@ const browser = await puppeteer.launch({
 
 app.get('/', (req, res) => res.send('Twitter Puppeteer Reply Bot is running!'));
 app.listen(3000, () => console.log('🚀 Server running at http://localhost:3000/'));
+
