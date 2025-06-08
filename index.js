@@ -15,10 +15,11 @@ app.post('/', async (req, res) => {
 
   const cookies = JSON.parse(fs.readFileSync('cookies.json'));
 
-  const browser = await puppeteer.launch({
-    headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox'],
-  });
+const browser = await puppeteer.launch({
+  headless: true,
+  args: ['--no-sandbox', '--disable-setuid-sandbox'],
+  executablePath: require('puppeteer').executablePath()
+});
 
   const page = await browser.newPage();
   await page.setCookie(...cookies);
