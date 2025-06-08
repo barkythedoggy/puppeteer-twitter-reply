@@ -21,11 +21,19 @@ app.post('/', async (req, res) => {
     args: ['--no-sandbox', '--disable-setuid-sandbox']
   });
 
-    const page = await browser.newPage();
-    await page.setCookie(...cookies);
-    await page.setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
-    await page.goto(target_tweet_url, { waitUntil: 'domcontentloaded' });
+  const page = await browser.newPage();
+  await page.setCookie(...cookies);
+  await page.setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
 
+  console.log(`[🧭] Opening tweet URL: ${target_tweet_url}`);
+  await page.goto(target_tweet_url, { waitUntil: 'domcontentloaded' });
+
+  // 👇 檢查是否導到 login 頁
+  if (page.url().includes('/login')) {
+    console.log('[🚫] Not logged in. You are being redirected to Twitter login page.');
+    await browser.close();
+    return res.status(401).send('Not logged in. Please update your cookies.json');
+  }
 
   try {
     await page.waitForSelector('div[data-testid="reply"]', { timeout: 10000 });
@@ -41,12 +49,11 @@ app.post('/', async (req, res) => {
     res.send('✅ Reply sent!');
   } catch (err) {
     console.error('❌ Failed to reply:', err.message);
-    res.status(500).send('❌ Failed to reply');
+    res.status(500).send(`❌ Failed to reply: ${err.message}`);
   } finally {
     await browser.close();
   }
 });
 
-app.get('/', (req, res) => res.send('Twitter Puppeteer Reply Bot is running!'));
+app.get('/', (req, res) => res.send('🐦 Twitter Puppeteer Reply Bot is running!'));
 app.listen(3000, () => console.log('🚀 Server running at http://localhost:3000/'));
-
