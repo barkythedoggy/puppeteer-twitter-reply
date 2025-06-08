@@ -45,4 +45,4 @@ app.post('/', async (req, res) => {
 });
 
 app.get('/', (req, res) => res.send('Twitter Puppeteer Reply Bot is running!'));
-app.listen(3000, () => console.log('🚀 Server running at http://loca
+app.listen(3000, () => console.log('🚀 Server running at http://localhost:3000/'));
